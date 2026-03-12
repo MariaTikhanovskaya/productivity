@@ -221,6 +221,19 @@ button:disabled {
 .task-column {
   display: grid;
   gap: 0.65rem;
+  padding: 0.85rem;
+  border-radius: 18px;
+  border: 1px solid transparent;
+}
+
+.task-column[data-category="work"] {
+  background: rgba(102, 148, 106, 0.12);
+  border-color: rgba(77, 116, 92, 0.18);
+}
+
+.task-column[data-category="personal"] {
+  background: rgba(223, 155, 184, 0.14);
+  border-color: rgba(206, 116, 154, 0.2);
 }
 
 .column-header h4 {
@@ -256,6 +269,15 @@ button:disabled {
   border-radius: 16px;
   background: white;
   border: 1px solid rgba(39, 66, 42, 0.08);
+}
+
+.task-column[data-category="work"] .task-item {
+  background: rgba(251, 255, 250, 0.96);
+}
+
+.task-column[data-category="personal"] .task-item {
+  background: rgba(255, 250, 253, 0.96);
+  border-color: rgba(161, 79, 114, 0.12);
 }
 
 .task-label {
