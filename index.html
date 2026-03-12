@@ -44,6 +44,7 @@
           <input id="task-input" name="task" type="text" maxlength="160" placeholder="Reply to emails, call doctor, finish budget..." required>
           <button type="submit">Add</button>
         </div>
+        <p id="task-category-preview" class="meta">New tasks will be labeled as work or personal automatically.</p>
       </form>
     </section>
 
@@ -66,7 +67,10 @@
         <li class="task-item">
           <label class="task-label">
             <input class="task-checkbox" type="checkbox">
-            <span class="task-text"></span>
+            <span class="task-content">
+              <span class="task-text"></span>
+              <span class="task-category-badge"></span>
+            </span>
           </label>
           <button class="delete-button" type="button" aria-label="Delete task">Delete</button>
         </li>

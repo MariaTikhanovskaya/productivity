@@ -4,10 +4,20 @@ create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   text text not null check (char_length(trim(text)) > 0 and char_length(text) <= 160),
+  category text not null default 'personal' check (category in ('work', 'personal')),
   created_on date not null default current_date,
   completed_on date,
   inserted_at timestamptz not null default now()
 );
+
+alter table public.tasks
+add column if not exists category text not null default 'personal';
+
+alter table public.tasks
+drop constraint if exists tasks_category_check;
+
+alter table public.tasks
+add constraint tasks_category_check check (category in ('work', 'personal'));
 
 alter table public.tasks enable row level security;
 

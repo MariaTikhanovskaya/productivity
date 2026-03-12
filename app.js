@@ -3,6 +3,7 @@ const taskCount = document.querySelector("#task-count");
 const taskGroups = document.querySelector("#task-groups");
 const taskForm = document.querySelector("#task-form");
 const taskInput = document.querySelector("#task-input");
+const taskCategoryPreview = document.querySelector("#task-category-preview");
 const authForm = document.querySelector("#auth-form");
 const emailInput = document.querySelector("#email-input");
 const authStatus = document.querySelector("#auth-status");
@@ -35,6 +36,17 @@ taskForm.addEventListener("submit", (event) => {
   createTask(text);
 });
 
+taskInput.addEventListener("input", () => {
+  const text = taskInput.value.trim();
+  if (!text) {
+    taskCategoryPreview.textContent = "New tasks will be labeled as work or personal automatically.";
+    return;
+  }
+
+  const category = inferCategory(text);
+  taskCategoryPreview.textContent = `This looks like a ${category} task.`;
+});
+
 function renderToday() {
   todayLabel.textContent = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
@@ -47,7 +59,7 @@ function renderToday() {
 function renderTasks() {
   const openTasks = tasks
     .filter((task) => !task.completedOn)
-    .sort((a, b) => a.createdOn.localeCompare(b.createdOn));
+    .sort(compareTasks);
 
   taskGroups.innerHTML = "";
   taskCount.textContent = `${openTasks.length} open ${openTasks.length === 1 ? "task" : "tasks"}`;
@@ -76,11 +88,15 @@ function renderTasks() {
       const taskNode = taskTemplate.content.firstElementChild.cloneNode(true);
       const checkbox = taskNode.querySelector(".task-checkbox");
       const text = taskNode.querySelector(".task-text");
+      const badge = taskNode.querySelector(".task-category-badge");
       const deleteButton = taskNode.querySelector(".delete-button");
+      const category = task.category || inferCategory(task.text);
 
       checkbox.checked = false;
       checkbox.addEventListener("change", () => completeTask(task.id));
       text.textContent = task.text;
+      badge.textContent = category;
+      badge.dataset.category = category;
       deleteButton.addEventListener("click", () => deleteTask(task.id));
 
       list.append(taskNode);
@@ -98,6 +114,24 @@ function groupBy(items, getKey) {
     groups[key].push(item);
     return groups;
   }, {});
+}
+
+function compareTasks(a, b) {
+  const byDate = a.createdOn.localeCompare(b.createdOn);
+  if (byDate !== 0) {
+    return byDate;
+  }
+
+  const byCategory = categoryRank(a.category || inferCategory(a.text)) - categoryRank(b.category || inferCategory(b.text));
+  if (byCategory !== 0) {
+    return byCategory;
+  }
+
+  return a.text.localeCompare(b.text);
+}
+
+function categoryRank(category) {
+  return category === "work" ? 0 : 1;
 }
 
 function formatDateKey(date) {
@@ -215,8 +249,9 @@ async function loadTasks() {
 
   const { data, error } = await supabaseClient
     .from("tasks")
-    .select("id, text, created_on, completed_on, inserted_at")
+    .select("id, text, category, created_on, completed_on, inserted_at")
     .order("created_on", { ascending: true })
+    .order("category", { ascending: true })
     .order("inserted_at", { ascending: true });
 
   if (error) {
@@ -229,6 +264,7 @@ async function loadTasks() {
   tasks = data.map((task) => ({
     id: task.id,
     text: task.text,
+    category: task.category || inferCategory(task.text),
     createdOn: task.created_on,
     completedOn: task.completed_on
   }));
@@ -241,14 +277,16 @@ async function createTask(text) {
     return;
   }
 
+  const category = inferCategory(text);
   const { data, error } = await supabaseClient
     .from("tasks")
     .insert({
       user_id: currentUser.id,
       text,
+      category,
       created_on: formatDateKey(new Date())
     })
-    .select("id, text, created_on, completed_on")
+    .select("id, text, category, created_on, completed_on")
     .single();
 
   if (error) {
@@ -259,6 +297,7 @@ async function createTask(text) {
   tasks.unshift({
     id: data.id,
     text: data.text,
+    category: data.category,
     createdOn: data.created_on,
     completedOn: data.completed_on
   });
@@ -353,4 +392,31 @@ function buildRedirectUrl() {
   url.hash = "";
   url.search = "";
   return url.toString();
+}
+
+function inferCategory(text) {
+  const normalized = text.toLowerCase();
+  const workKeywords = [
+    "meeting", "email", "client", "project", "deck", "slide", "invoice", "budget", "team",
+    "manager", "work", "office", "presentation", "report", "deadline", "follow up", "follow-up",
+    "review", "jira", "ticket", "deploy", "code", "pr ", "pull request", "roadmap", "vendor"
+  ];
+  const personalKeywords = [
+    "doctor", "dentist", "gym", "groceries", "grocery", "mom", "dad", "family", "kids", "school",
+    "laundry", "dinner", "cook", "clean", "birthday", "friend", "bank", "rent", "pharmacy",
+    "walk", "pet", "dog", "cat", "home", "apartment", "shopping", "call mom", "call dad"
+  ];
+
+  const workScore = scoreKeywords(normalized, workKeywords);
+  const personalScore = scoreKeywords(normalized, personalKeywords);
+
+  if (workScore === personalScore) {
+    return workScore > 0 ? "work" : "personal";
+  }
+
+  return workScore > personalScore ? "work" : "personal";
+}
+
+function scoreKeywords(text, keywords) {
+  return keywords.reduce((score, keyword) => score + (text.includes(keyword) ? 1 : 0), 0);
 }

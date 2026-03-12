@@ -15,6 +15,8 @@ This app uses Supabase for auth and task storage, so the same list can be used o
 
 Open the site, enter your email address, and use the magic link Supabase sends you. After signing in, tasks are stored in Supabase and follow your account across devices.
 
+New tasks are automatically labeled as `work` or `personal` using a simple text-based classifier in the frontend.
+
 ## Files
 
 - [index.html](/Users/maria.tikhanovskaya/productivity/index.html) renders the app and auth UI.
