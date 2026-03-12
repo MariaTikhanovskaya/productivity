@@ -1,0 +1,4 @@
+window.APP_CONFIG = {
+  supabaseUrl: "https://rhqfnsystrhcbymhavtw.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJocWZuc3lzdHJoY2J5bWhhdnR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDg3MjQsImV4cCI6MjA4ODkyNDcyNH0.QRF8_m6xqf7lj6FgrXnXuBDEO5SDmO1Dd7WBzyAigjs"
+};

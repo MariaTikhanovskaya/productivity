@@ -1,0 +1,260 @@
+:root {
+  --bg: #f3efe3;
+  --panel: rgba(255, 251, 242, 0.82);
+  --panel-strong: #fffaf0;
+  --ink: #22201c;
+  --muted: #6d665d;
+  --line: rgba(34, 32, 28, 0.12);
+  --accent: #b55233;
+  --accent-soft: rgba(181, 82, 51, 0.12);
+  --shadow: 0 24px 60px rgba(74, 52, 31, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Manrope", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(181, 82, 51, 0.15), transparent 28%),
+    radial-gradient(circle at right 20%, rgba(81, 124, 89, 0.16), transparent 24%),
+    linear-gradient(180deg, #efe7d5 0%, var(--bg) 45%, #ece4d6 100%);
+}
+
+.app-shell {
+  width: min(880px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow,
+.meta,
+.group-meta {
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "Fraunces", serif;
+}
+
+h1 {
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3.35rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  max-width: none;
+  white-space: nowrap;
+}
+
+.subtitle {
+  max-width: 54ch;
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+}
+
+.card {
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+}
+
+.composer,
+.list,
+.auth {
+  padding: 1.2rem;
+}
+
+.auth,
+.composer {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.65rem;
+  font-weight: 700;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 0.95rem 1rem;
+  font: inherit;
+  color: var(--ink);
+}
+
+button {
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.95rem 1.15rem;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondary-button {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.task-groups {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.task-group {
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 1rem;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.group-title {
+  font-size: 1.2rem;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid rgba(34, 32, 28, 0.08);
+}
+
+.task-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.task-checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.task-text {
+  overflow-wrap: anywhere;
+}
+
+.delete-button {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.55rem 0.8rem;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--muted);
+}
+
+.disabled-section {
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    width: min(100% - 1rem, 880px);
+    padding-top: 1.5rem;
+  }
+
+  .input-row,
+  .section-heading,
+  .group-header,
+  .task-item {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  button,
+  .delete-button {
+    width: 100%;
+  }
+
+  .auth-heading .secondary-button {
+    width: 100%;
+  }
+}

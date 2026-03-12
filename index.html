@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Todo Organizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <p class="eyebrow">Daily page</p>
+      <h1 id="today-label">Today</h1>
+      <p class="subtitle">
+        Unfinished tasks stay visible each day and remain grouped by when you first created them.
+      </p>
+    </section>
+
+    <section class="auth card">
+      <div class="section-heading auth-heading">
+        <div>
+          <h2>Sync across devices</h2>
+          <p id="auth-status" class="meta">Checking sign-in state...</p>
+        </div>
+        <button id="sign-out-button" type="button" class="secondary-button hidden">Sign out</button>
+      </div>
+
+      <form id="auth-form" class="task-form">
+        <label class="form-label" for="email-input">Email address</label>
+        <div class="input-row">
+          <input id="email-input" name="email" type="email" placeholder="you@example.com" required>
+          <button id="sign-in-button" type="submit">Email me a link</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="composer card">
+      <form id="task-form" class="task-form">
+        <label class="form-label" for="task-input">Add a task</label>
+        <div class="input-row">
+          <input id="task-input" name="task" type="text" maxlength="160" placeholder="Reply to emails, call doctor, finish budget..." required>
+          <button type="submit">Add</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="list card">
+      <div class="section-heading">
+        <h2>Open tasks</h2>
+        <p id="task-count" class="meta"></p>
+      </div>
+      <div id="task-groups" class="task-groups"></div>
+      <template id="group-template">
+        <article class="task-group">
+          <div class="group-header">
+            <h3 class="group-title"></h3>
+            <p class="group-meta"></p>
+          </div>
+          <ul class="task-list"></ul>
+        </article>
+      </template>
+      <template id="task-template">
+        <li class="task-item">
+          <label class="task-label">
+            <input class="task-checkbox" type="checkbox">
+            <span class="task-text"></span>
+          </label>
+          <button class="delete-button" type="button" aria-label="Delete task">Delete</button>
+        </li>
+      </template>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
