@@ -1,6 +1,10 @@
 const todayLabel = document.querySelector("#today-label");
 const taskCount = document.querySelector("#task-count");
 const taskGroups = document.querySelector("#task-groups");
+const doneSection = document.querySelector("#done-section");
+const doneList = document.querySelector("#done-list");
+const doneCount = document.querySelector("#done-count");
+const toggleDoneButton = document.querySelector("#toggle-done-button");
 const taskForm = document.querySelector("#task-form");
 const taskInput = document.querySelector("#task-input");
 const taskCategoryPreview = document.querySelector("#task-category-preview");
@@ -30,6 +34,7 @@ const supabaseClient = supabaseUrl && supabaseAnonKey
 let tasks = [];
 let currentUser = null;
 let supportsCategoryColumn = true;
+let showingDoneTasks = false;
 
 renderToday();
 initializeApp();
@@ -56,6 +61,11 @@ taskInput.addEventListener("input", () => {
   taskCategoryPreview.textContent = `This looks like a ${category} task.`;
 });
 
+toggleDoneButton.addEventListener("click", () => {
+  showingDoneTasks = !showingDoneTasks;
+  renderTasks();
+});
+
 function renderToday() {
   todayLabel.textContent = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
@@ -69,16 +79,22 @@ function renderTasks() {
   const openTasks = tasks
     .filter((task) => !task.completedOn)
     .sort(compareTasks);
+  const completedTasks = tasks
+    .filter((task) => task.completedOn)
+    .sort((a, b) => (b.completedOn || "").localeCompare(a.completedOn || "") || a.text.localeCompare(b.text));
 
   taskGroups.innerHTML = "";
+  doneList.innerHTML = "";
   taskCount.textContent = `${openTasks.length} open ${openTasks.length === 1 ? "task" : "tasks"}`;
+  doneCount.textContent = `${completedTasks.length} done ${completedTasks.length === 1 ? "task" : "tasks"}`;
+  toggleDoneButton.textContent = showingDoneTasks ? "Hide done tasks" : "Done tasks";
+  doneSection.classList.toggle("hidden", !showingDoneTasks);
 
   if (openTasks.length === 0) {
     const emptyState = document.createElement("p");
     emptyState.className = "empty-state";
     emptyState.textContent = "Nothing is waiting for today.";
     taskGroups.append(emptyState);
-    return;
   }
 
   const groupedTasks = groupBy(openTasks, (task) => task.createdOn);
@@ -87,33 +103,63 @@ function renderTasks() {
     const groupNode = groupTemplate.content.firstElementChild.cloneNode(true);
     const title = groupNode.querySelector(".group-title");
     const meta = groupNode.querySelector(".group-meta");
-    const list = groupNode.querySelector(".task-list");
+    const workList = groupNode.querySelector('[data-category="work"] .task-list');
+    const personalList = groupNode.querySelector('[data-category="personal"] .task-list');
+    const workColumn = groupNode.querySelector('[data-category="work"]');
+    const personalColumn = groupNode.querySelector('[data-category="personal"]');
     const isToday = createdOn === formatDateKey(new Date());
 
     title.textContent = isToday ? "Created today" : `Started ${formatReadableDate(createdOn)}`;
     meta.textContent = `${group.length} ${group.length === 1 ? "task" : "tasks"}`;
 
     group.forEach((task) => {
-      const taskNode = taskTemplate.content.firstElementChild.cloneNode(true);
-      const checkbox = taskNode.querySelector(".task-checkbox");
-      const text = taskNode.querySelector(".task-text");
-      const badge = taskNode.querySelector(".task-category-badge");
-      const deleteButton = taskNode.querySelector(".delete-button");
       const category = task.category || inferCategory(task.text);
+      const taskNode = buildTaskNode(task, category);
 
-      checkbox.checked = false;
-      checkbox.addEventListener("change", () => completeTask(task.id));
-      text.textContent = task.text;
-      badge.textContent = category;
-      badge.dataset.category = category;
-      deleteButton.addEventListener("click", () => deleteTask(task.id));
-
-      list.append(taskNode);
+      if (category === "work") {
+        workList.append(taskNode);
+      } else {
+        personalList.append(taskNode);
+      }
     });
+
+    workColumn.classList.toggle("hidden", workList.children.length === 0);
+    personalColumn.classList.toggle("hidden", personalList.children.length === 0);
 
     taskGroups.append(groupNode);
   });
+
+  if (completedTasks.length === 0) {
+    const emptyDoneState = document.createElement("p");
+    emptyDoneState.className = "empty-state";
+    emptyDoneState.textContent = "No tasks have been completed yet.";
+    doneList.append(emptyDoneState);
+  } else {
+    completedTasks.forEach((task) => {
+      const category = task.category || inferCategory(task.text);
+      doneList.append(buildTaskNode(task, category, true));
+    });
+  }
+
   clearError();
+}
+
+function buildTaskNode(task, category, isComplete = false) {
+  const taskNode = taskTemplate.content.firstElementChild.cloneNode(true);
+  const checkbox = taskNode.querySelector(".task-checkbox");
+  const text = taskNode.querySelector(".task-text");
+  const badge = taskNode.querySelector(".task-category-badge");
+  const deleteButton = taskNode.querySelector(".delete-button");
+
+  checkbox.checked = isComplete;
+  checkbox.addEventListener("change", () => toggleTaskCompletion(task.id, !isComplete));
+  text.textContent = task.text;
+  badge.textContent = category;
+  badge.dataset.category = category;
+  deleteButton.addEventListener("click", () => deleteTask(task.id));
+  taskNode.classList.toggle("is-complete", isComplete);
+
+  return taskNode;
 }
 
 function groupBy(items, getKey) {
@@ -345,24 +391,24 @@ async function createTask(text) {
   taskInput.focus();
 }
 
-async function completeTask(taskId) {
+async function toggleTaskCompletion(taskId, shouldComplete) {
   if (!supabaseClient || !currentUser) {
     return;
   }
 
-  const today = formatDateKey(new Date());
+  const completedOn = shouldComplete ? formatDateKey(new Date()) : null;
   const { error } = await supabaseClient
     .from("tasks")
-    .update({ completed_on: today })
+    .update({ completed_on: completedOn })
     .eq("id", taskId)
     .eq("user_id", currentUser.id);
 
   if (error) {
-    renderError("Could not mark that task as complete.");
+    renderError(`Could not mark that task as ${shouldComplete ? "complete" : "open"}.`);
     return;
   }
 
-  tasks = tasks.map((task) => task.id === taskId ? { ...task, completedOn: today } : task);
+  tasks = tasks.map((task) => task.id === taskId ? { ...task, completedOn } : task);
   renderTasks();
 }
 

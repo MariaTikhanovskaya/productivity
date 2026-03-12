@@ -53,16 +53,39 @@
     <section class="list card">
       <div class="section-heading">
         <h2>Open tasks</h2>
-        <p id="task-count" class="meta"></p>
+        <div class="section-actions">
+          <button id="toggle-done-button" type="button" class="link-button">Done tasks</button>
+          <p id="task-count" class="meta"></p>
+        </div>
       </div>
       <div id="task-groups" class="task-groups"></div>
+      <section id="done-section" class="done-section hidden">
+        <div class="section-heading done-heading">
+          <h2>Done tasks</h2>
+          <p id="done-count" class="meta"></p>
+        </div>
+        <ul id="done-list" class="task-list"></ul>
+      </section>
       <template id="group-template">
         <article class="task-group">
           <div class="group-header">
             <h3 class="group-title"></h3>
             <p class="group-meta"></p>
           </div>
-          <ul class="task-list"></ul>
+          <div class="task-columns">
+            <section class="task-column" data-category="work">
+              <div class="column-header">
+                <h4>Work</h4>
+              </div>
+              <ul class="task-list"></ul>
+            </section>
+            <section class="task-column" data-category="personal">
+              <div class="column-header">
+                <h4>Personal</h4>
+              </div>
+              <ul class="task-list"></ul>
+            </section>
+          </div>
         </article>
       </template>
       <template id="task-template">

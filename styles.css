@@ -167,6 +167,26 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
+.section-actions {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.link-button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  padding: 0;
+  width: auto;
+  font-weight: 700;
+}
+
+.link-button:hover {
+  transform: none;
+  text-decoration: underline;
+}
+
 .task-groups {
   display: grid;
   gap: 0.95rem;
@@ -190,6 +210,25 @@ button:disabled {
 .group-title {
   font-size: 1.2rem;
   font-weight: 800;
+}
+
+.task-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.task-column {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.column-header h4 {
+  margin: 0;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
 .task-list {
@@ -274,6 +313,24 @@ button:disabled {
   color: var(--muted);
 }
 
+.done-section {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.done-heading {
+  margin-bottom: 0.8rem;
+}
+
+.task-item.is-complete {
+  opacity: 0.72;
+}
+
+.task-item.is-complete .task-text {
+  text-decoration: line-through;
+}
+
 .disabled-section {
   opacity: 0.48;
   pointer-events: none;
@@ -293,6 +350,12 @@ button:disabled {
   .section-heading,
   .group-header,
   .task-item {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .section-actions,
+  .task-columns {
     grid-template-columns: 1fr;
     display: grid;
   }
