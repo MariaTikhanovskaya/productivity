@@ -8,7 +8,8 @@ const authForm = document.querySelector("#auth-form");
 const emailInput = document.querySelector("#email-input");
 const authStatus = document.querySelector("#auth-status");
 const signInButton = document.querySelector("#sign-in-button");
-const signOutButton = document.querySelector("#sign-out-button");
+const heroSignOutButton = document.querySelector("#hero-sign-out-button");
+const authSection = document.querySelector(".auth");
 const composerSection = document.querySelector(".composer");
 const listSection = document.querySelector(".list");
 const groupTemplate = document.querySelector("#group-template");
@@ -231,7 +232,7 @@ function bindAuthEvents() {
     authStatus.textContent = `Magic link sent to ${email}. Open it on any device where you want access.`;
   });
 
-  signOutButton.addEventListener("click", async () => {
+  heroSignOutButton.addEventListener("click", async () => {
     if (!supabaseClient) {
       return;
     }
@@ -353,11 +354,11 @@ function updateAuthUi() {
   composerSection.classList.toggle("disabled-section", !signedIn);
   listSection.classList.toggle("disabled-section", !signedIn);
   taskInput.disabled = !signedIn;
-  signOutButton.classList.toggle("hidden", !signedIn);
+  heroSignOutButton.classList.toggle("hidden", !signedIn);
   authForm.classList.toggle("hidden", signedIn);
+  authSection.classList.toggle("hidden", signedIn);
 
   if (signedIn) {
-    authStatus.textContent = `Signed in as ${currentUser.email}`;
     return;
   }
 
@@ -369,8 +370,9 @@ function renderSignedOutState() {
   composerSection.classList.add("disabled-section");
   listSection.classList.add("disabled-section");
   taskInput.disabled = true;
-  signOutButton.classList.add("hidden");
+  heroSignOutButton.classList.add("hidden");
   authForm.classList.remove("hidden");
+  authSection.classList.remove("hidden");
 }
 
 function renderConfigurationError() {

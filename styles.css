@@ -1,13 +1,13 @@
 :root {
-  --bg: #f3efe3;
-  --panel: rgba(255, 251, 242, 0.82);
-  --panel-strong: #fffaf0;
-  --ink: #22201c;
-  --muted: #6d665d;
-  --line: rgba(34, 32, 28, 0.12);
-  --accent: #b55233;
-  --accent-soft: rgba(181, 82, 51, 0.12);
-  --shadow: 0 24px 60px rgba(74, 52, 31, 0.12);
+  --bg: #edf4ea;
+  --panel: rgba(249, 253, 247, 0.82);
+  --panel-strong: #fdfef8;
+  --ink: #1e2b1f;
+  --muted: #607161;
+  --line: rgba(39, 66, 42, 0.12);
+  --accent: #4f7a52;
+  --accent-soft: rgba(79, 122, 82, 0.14);
+  --shadow: 0 24px 60px rgba(52, 79, 56, 0.12);
 }
 
 * {
@@ -20,9 +20,9 @@ body {
   font-family: "Manrope", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(181, 82, 51, 0.15), transparent 28%),
-    radial-gradient(circle at right 20%, rgba(81, 124, 89, 0.16), transparent 24%),
-    linear-gradient(180deg, #efe7d5 0%, var(--bg) 45%, #ece4d6 100%);
+    radial-gradient(circle at top left, rgba(126, 167, 111, 0.2), transparent 28%),
+    radial-gradient(circle at right 20%, rgba(91, 141, 108, 0.18), transparent 24%),
+    linear-gradient(180deg, #f1f7ed 0%, var(--bg) 45%, #e6efe2 100%);
 }
 
 .app-shell {
@@ -33,6 +33,13 @@ body {
 
 .hero {
   margin-bottom: 1.5rem;
+}
+
+.hero-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .eyebrow,
@@ -53,7 +60,7 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-family: "Fraunces", serif;
+  font-family: "Manrope", sans-serif;
 }
 
 h1 {
@@ -146,6 +153,12 @@ button:disabled {
   color: var(--accent);
 }
 
+.hero-sign-out {
+  padding: 0.65rem 0.9rem;
+  width: auto;
+  flex: 0 0 auto;
+}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -176,6 +189,7 @@ button:disabled {
 
 .group-title {
   font-size: 1.2rem;
+  font-weight: 800;
 }
 
 .task-list {
@@ -194,7 +208,7 @@ button:disabled {
   padding: 0.8rem 0.9rem;
   border-radius: 16px;
   background: white;
-  border: 1px solid rgba(34, 32, 28, 0.08);
+  border: 1px solid rgba(39, 66, 42, 0.08);
 }
 
 .task-label {
@@ -237,13 +251,13 @@ button:disabled {
 }
 
 .task-category-badge[data-category="work"] {
-  background: rgba(53, 92, 176, 0.12);
-  color: #24468f;
+  background: rgba(77, 116, 92, 0.16);
+  color: #315940;
 }
 
 .task-category-badge[data-category="personal"] {
-  background: rgba(88, 128, 74, 0.14);
-  color: #45683a;
+  background: rgba(121, 157, 98, 0.16);
+  color: #4f6d35;
 }
 
 .delete-button {
@@ -283,11 +297,16 @@ button:disabled {
     display: grid;
   }
 
+  .hero-topline {
+    align-items: flex-start;
+  }
+
   button,
   .delete-button {
     width: 100%;
   }
 
+  .hero-sign-out,
   .auth-heading .secondary-button {
     width: 100%;
   }

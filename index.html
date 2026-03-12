@@ -12,7 +12,10 @@
 <body>
   <main class="app-shell">
     <section class="hero">
-      <p class="eyebrow">Daily page</p>
+      <div class="hero-topline">
+        <p class="eyebrow">Daily page</p>
+        <button id="hero-sign-out-button" type="button" class="secondary-button hero-sign-out hidden">Sign out</button>
+      </div>
       <h1 id="today-label">Today</h1>
       <p class="subtitle">
         Unfinished tasks stay visible each day and remain grouped by when you first created them.
@@ -25,7 +28,6 @@
           <h2>Sync across devices</h2>
           <p id="auth-status" class="meta">Checking sign-in state...</p>
         </div>
-        <button id="sign-out-button" type="button" class="secondary-button hidden">Sign out</button>
       </div>
 
       <form id="auth-form" class="task-form">
