@@ -231,6 +231,14 @@ button:disabled {
   color: var(--muted);
 }
 
+.task-column[data-category="work"] .column-header h4 {
+  color: #315940;
+}
+
+.task-column[data-category="personal"] .column-header h4 {
+  color: #a14f72;
+}
+
 .task-list {
   list-style: none;
   padding: 0;
@@ -295,8 +303,8 @@ button:disabled {
 }
 
 .task-category-badge[data-category="personal"] {
-  background: rgba(121, 157, 98, 0.16);
-  color: #4f6d35;
+  background: rgba(206, 116, 154, 0.16);
+  color: #a14f72;
 }
 
 .delete-button {
