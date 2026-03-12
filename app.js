@@ -17,11 +17,19 @@ const taskTemplate = document.querySelector("#task-template");
 const supabaseUrl = window.APP_CONFIG?.supabaseUrl?.trim();
 const supabaseAnonKey = window.APP_CONFIG?.supabaseAnonKey?.trim();
 const supabaseClient = supabaseUrl && supabaseAnonKey
-  ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+  ? window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: "daily-todo-organizer-auth"
+    }
+  })
   : null;
 
 let tasks = [];
 let currentUser = null;
+let supportsCategoryColumn = true;
 
 renderToday();
 initializeApp();
@@ -165,7 +173,7 @@ function clearError() {
 
 async function initializeApp() {
   bindAuthEvents();
-  renderSignedOutState();
+  renderAuthCheckingState();
 
   if (!supabaseClient) {
     renderConfigurationError();
@@ -182,6 +190,7 @@ async function initializeApp() {
   if (currentUser) {
     await loadTasks();
   } else {
+    renderSignedOutState();
     renderTasks();
   }
 
@@ -194,6 +203,7 @@ async function initializeApp() {
       return;
     }
 
+    renderSignedOutState();
     tasks = [];
     renderTasks();
   });
@@ -248,12 +258,23 @@ async function loadTasks() {
 
   taskCount.textContent = "Loading tasks...";
 
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("tasks")
     .select("id, text, category, created_on, completed_on, inserted_at")
     .order("created_on", { ascending: true })
     .order("category", { ascending: true })
     .order("inserted_at", { ascending: true });
+
+  let { data, error } = await query;
+
+  if (isMissingCategoryColumn(error)) {
+    supportsCategoryColumn = false;
+    ({ data, error } = await supabaseClient
+      .from("tasks")
+      .select("id, text, created_on, completed_on, inserted_at")
+      .order("created_on", { ascending: true })
+      .order("inserted_at", { ascending: true }));
+  }
 
   if (error) {
     tasks = [];
@@ -279,16 +300,33 @@ async function createTask(text) {
   }
 
   const category = inferCategory(text);
-  const { data, error } = await supabaseClient
+  let payload = {
+    user_id: currentUser.id,
+    text,
+    category,
+    created_on: formatDateKey(new Date())
+  };
+  let selectColumns = "id, text, category, created_on, completed_on";
+  let { data, error } = await supabaseClient
     .from("tasks")
-    .insert({
+    .insert(payload)
+    .select(selectColumns)
+    .single();
+
+  if (isMissingCategoryColumn(error)) {
+    supportsCategoryColumn = false;
+    payload = {
       user_id: currentUser.id,
       text,
-      category,
       created_on: formatDateKey(new Date())
-    })
-    .select("id, text, category, created_on, completed_on")
-    .single();
+    };
+    selectColumns = "id, text, created_on, completed_on";
+    ({ data, error } = await supabaseClient
+      .from("tasks")
+      .insert(payload)
+      .select(selectColumns)
+      .single());
+  }
 
   if (error) {
     renderError("Could not save the new task.");
@@ -365,6 +403,16 @@ function updateAuthUi() {
   renderSignedOutState();
 }
 
+function renderAuthCheckingState() {
+  authStatus.textContent = "Checking sign-in state...";
+  composerSection.classList.add("disabled-section");
+  listSection.classList.add("disabled-section");
+  taskInput.disabled = true;
+  heroSignOutButton.classList.add("hidden");
+  authSection.classList.remove("hidden");
+  authForm.classList.add("hidden");
+}
+
 function renderSignedOutState() {
   authStatus.textContent = "Sign in with a magic link to sync your tasks across devices.";
   composerSection.classList.add("disabled-section");
@@ -421,4 +469,13 @@ function inferCategory(text) {
 
 function scoreKeywords(text, keywords) {
   return keywords.reduce((score, keyword) => score + (text.includes(keyword) ? 1 : 0), 0);
+}
+
+function isMissingCategoryColumn(error) {
+  return Boolean(
+    error && (
+      error.code === "42703" ||
+      error.message?.toLowerCase().includes("category")
+    )
+  );
 }
