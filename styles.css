@@ -192,6 +192,15 @@ button:disabled {
   gap: 0.95rem;
 }
 
+.task-section + .task-section {
+  margin-top: 1.2rem;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
 .task-group {
   background: var(--panel-strong);
   border: 1px solid var(--line);

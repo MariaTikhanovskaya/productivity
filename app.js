@@ -17,6 +17,7 @@ const authSection = document.querySelector(".auth");
 const composerSection = document.querySelector(".composer");
 const listSection = document.querySelector(".list");
 const groupTemplate = document.querySelector("#group-template");
+const sectionTemplate = document.querySelector("#section-template");
 const taskTemplate = document.querySelector("#task-template");
 const supabaseUrl = window.APP_CONFIG?.supabaseUrl?.trim();
 const supabaseAnonKey = window.APP_CONFIG?.supabaseAnonKey?.trim();
@@ -97,19 +98,44 @@ function renderTasks() {
     taskGroups.append(emptyState);
   }
 
-  const groupedTasks = groupBy(openTasks, (task) => task.createdOn);
   const todayKey = formatDateKey(new Date());
-  const orderedGroups = Object.entries(groupedTasks).sort(([leftDate], [rightDate]) => {
-    if (leftDate === todayKey) {
-      return -1;
-    }
+  const todaysTasks = openTasks.filter((task) => task.createdOn === todayKey);
+  const olderTasks = openTasks.filter((task) => task.createdOn !== todayKey);
 
-    if (rightDate === todayKey) {
-      return 1;
-    }
+  renderTaskSection("Today", todaysTasks, taskGroups, false);
+  renderTaskSection("From previous days", olderTasks, taskGroups, true);
 
-    return rightDate.localeCompare(leftDate);
-  });
+  if (completedTasks.length === 0) {
+    const emptyDoneState = document.createElement("p");
+    emptyDoneState.className = "empty-state";
+    emptyDoneState.textContent = "No tasks have been completed yet.";
+    doneList.append(emptyDoneState);
+  } else {
+    completedTasks.forEach((task) => {
+      const category = task.category || inferCategory(task.text);
+      doneList.append(buildTaskNode(task, category, true));
+    });
+  }
+
+  clearError();
+}
+
+function renderTaskSection(titleText, sectionTasks, container, sortDescending) {
+  if (sectionTasks.length === 0) {
+    return;
+  }
+
+  const sectionNode = sectionTemplate.content.firstElementChild.cloneNode(true);
+  const sectionTitle = sectionNode.querySelector(".section-title");
+  const sectionMeta = sectionNode.querySelector(".section-meta");
+  const sectionGroups = sectionNode.querySelector(".task-groups");
+  const groupedTasks = groupBy(sectionTasks, (task) => task.createdOn);
+  const orderedGroups = Object.entries(groupedTasks).sort(([leftDate], [rightDate]) => (
+    sortDescending ? rightDate.localeCompare(leftDate) : leftDate.localeCompare(rightDate)
+  ));
+
+  sectionTitle.textContent = titleText;
+  sectionMeta.textContent = `${sectionTasks.length} ${sectionTasks.length === 1 ? "task" : "tasks"}`;
 
   orderedGroups.forEach(([createdOn, group]) => {
     const groupNode = groupTemplate.content.firstElementChild.cloneNode(true);
@@ -119,9 +145,8 @@ function renderTasks() {
     const personalList = groupNode.querySelector('[data-category="personal"] .task-list');
     const workColumn = groupNode.querySelector('[data-category="work"]');
     const personalColumn = groupNode.querySelector('[data-category="personal"]');
-    const isToday = createdOn === todayKey;
 
-    title.textContent = isToday ? "Created today" : `Started ${formatReadableDate(createdOn)}`;
+    title.textContent = titleText === "Today" ? "Created today" : `Started ${formatReadableDate(createdOn)}`;
     meta.textContent = `${group.length} ${group.length === 1 ? "task" : "tasks"}`;
 
     group.forEach((task) => {
@@ -138,22 +163,10 @@ function renderTasks() {
     workColumn.classList.toggle("hidden", workList.children.length === 0);
     personalColumn.classList.toggle("hidden", personalList.children.length === 0);
 
-    taskGroups.append(groupNode);
+    sectionGroups.append(groupNode);
   });
 
-  if (completedTasks.length === 0) {
-    const emptyDoneState = document.createElement("p");
-    emptyDoneState.className = "empty-state";
-    emptyDoneState.textContent = "No tasks have been completed yet.";
-    doneList.append(emptyDoneState);
-  } else {
-    completedTasks.forEach((task) => {
-      const category = task.category || inferCategory(task.text);
-      doneList.append(buildTaskNode(task, category, true));
-    });
-  }
-
-  clearError();
+  container.append(sectionNode);
 }
 
 function buildTaskNode(task, category, isComplete = false) {
