@@ -520,12 +520,18 @@ function inferCategory(text) {
   const workKeywords = [
     "meeting", "email", "client", "project", "deck", "slide", "invoice", "budget", "team",
     "manager", "work", "office", "presentation", "report", "deadline", "follow up", "follow-up",
-    "review", "jira", "ticket", "deploy", "code", "pr ", "pull request", "roadmap", "vendor"
+    "review", "jira", "ticket", "deploy", "code", "pr ", "pull request", "roadmap", "vendor", 
+    "contract", "proposal", "call", "sync", "standup", "one-on-one", "1:1", "brainstorm", "strategy",
+    "planning", "research", "analysis", "documentation", "training", "onboarding", "offboarding",
+    "performance", "evaluation", "feedback", "raise", "promotion", "hr", "legal", "compliance",
+    "it support", "helpdesk", "sysadmin", "admin", "operations", "ops", "devops"
   ];
   const personalKeywords = [
     "doctor", "dentist", "gym", "groceries", "grocery", "mom", "dad", "family", "kids", "school",
     "laundry", "dinner", "cook", "clean", "birthday", "friend", "bank", "rent", "pharmacy",
-    "walk", "pet", "dog", "cat", "home", "apartment", "shopping", "call mom", "call dad"
+    "walk", "pet", "dog", "cat", "home", "apartment", "shopping", "call mom", "call dad", "family", "friend", 
+    "vacation", "trip", "movie", "book", "read", "relax", "meditate", "yoga", "hobby", "game", "fun", "party", "social", "date", "anniversary", "gift", "volunteer",
+    "pay bills", "pay rent", "pay credit card", "renew", "subscription", "car", "maintenance", "oil change", "walk dog", "vet", "grooming"
   ];
 
   const workScore = scoreKeywords(normalized, workKeywords);
