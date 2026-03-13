@@ -106,7 +106,16 @@
               <span class="task-category-badge"></span>
             </span>
           </label>
-          <button class="delete-button" type="button" aria-label="Delete task">Delete</button>
+          <div class="task-actions">
+            <label class="category-control">
+              <span class="sr-only">Task category</span>
+              <select class="task-category-select" aria-label="Task category">
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+              </select>
+            </label>
+            <button class="delete-button" type="button" aria-label="Delete task">Delete</button>
+          </div>
         </li>
       </template>
     </section>

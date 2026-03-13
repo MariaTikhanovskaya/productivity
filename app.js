@@ -174,6 +174,7 @@ function buildTaskNode(task, category, isComplete = false) {
   const checkbox = taskNode.querySelector(".task-checkbox");
   const text = taskNode.querySelector(".task-text");
   const badge = taskNode.querySelector(".task-category-badge");
+  const categorySelect = taskNode.querySelector(".task-category-select");
   const deleteButton = taskNode.querySelector(".delete-button");
 
   checkbox.checked = isComplete;
@@ -181,6 +182,8 @@ function buildTaskNode(task, category, isComplete = false) {
   text.textContent = task.text;
   badge.textContent = category;
   badge.dataset.category = category;
+  categorySelect.value = category;
+  categorySelect.addEventListener("change", () => updateTaskCategory(task.id, categorySelect.value));
   deleteButton.addEventListener("click", () => deleteTask(task.id));
   taskNode.classList.toggle("is-complete", isComplete);
 
@@ -465,6 +468,37 @@ async function deleteTask(taskId) {
   }
 
   tasks = tasks.filter((task) => task.id !== taskId);
+  renderTasks();
+}
+
+async function updateTaskCategory(taskId, category) {
+  if (!supabaseClient || !currentUser) {
+    return;
+  }
+
+  if (!supportsCategoryColumn) {
+    renderError("Run the latest Supabase SQL before editing task categories.");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("tasks")
+    .update({ category })
+    .eq("id", taskId)
+    .eq("user_id", currentUser.id);
+
+  if (isMissingCategoryColumn(error)) {
+    supportsCategoryColumn = false;
+    renderError("Run the latest Supabase SQL before editing task categories.");
+    return;
+  }
+
+  if (error) {
+    renderError("Could not update that task category.");
+    return;
+  }
+
+  tasks = tasks.map((task) => task.id === taskId ? { ...task, category } : task);
   renderTasks();
 }
 

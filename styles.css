@@ -280,6 +280,12 @@ button:disabled {
   border: 1px solid rgba(38, 38, 38, 0.08);
 }
 
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .task-column[data-category="work"] .task-item {
   background: rgba(255, 255, 255, 0.72);
 }
@@ -312,6 +318,21 @@ button:disabled {
 
 .task-text {
   overflow-wrap: anywhere;
+}
+
+.category-control {
+  display: inline-flex;
+  align-items: center;
+}
+
+.task-category-select {
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.42rem 1.8rem 0.42rem 0.6rem;
 }
 
 .task-category-badge {
@@ -379,6 +400,18 @@ button:disabled {
   display: none;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (max-width: 640px) {
   .app-shell {
     width: min(100% - 1rem, 880px);
@@ -405,6 +438,14 @@ button:disabled {
 
   button,
   .delete-button {
+    width: 100%;
+  }
+
+  .task-actions {
+    display: grid;
+  }
+
+  .task-category-select {
     width: 100%;
   }
 
