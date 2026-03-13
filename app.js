@@ -160,8 +160,8 @@ function renderTaskSection(titleText, sectionTasks, container, sortDescending) {
       }
     });
 
-    workColumn.classList.toggle("hidden", workList.children.length === 0);
-    personalColumn.classList.toggle("hidden", personalList.children.length === 0);
+    ensureColumnEmptyState(personalList, "No personal tasks in this group.");
+    ensureColumnEmptyState(workList, "No work tasks in this group.");
 
     sectionGroups.append(groupNode);
   });
@@ -185,6 +185,17 @@ function buildTaskNode(task, category, isComplete = false) {
   taskNode.classList.toggle("is-complete", isComplete);
 
   return taskNode;
+}
+
+function ensureColumnEmptyState(listNode, message) {
+  if (listNode.children.length > 0) {
+    return;
+  }
+
+  const emptyState = document.createElement("li");
+  emptyState.className = "empty-state";
+  emptyState.textContent = message;
+  listNode.append(emptyState);
 }
 
 function groupBy(items, getKey) {
