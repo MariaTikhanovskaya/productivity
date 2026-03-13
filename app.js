@@ -98,8 +98,20 @@ function renderTasks() {
   }
 
   const groupedTasks = groupBy(openTasks, (task) => task.createdOn);
+  const todayKey = formatDateKey(new Date());
+  const orderedGroups = Object.entries(groupedTasks).sort(([leftDate], [rightDate]) => {
+    if (leftDate === todayKey) {
+      return -1;
+    }
 
-  Object.entries(groupedTasks).forEach(([createdOn, group]) => {
+    if (rightDate === todayKey) {
+      return 1;
+    }
+
+    return rightDate.localeCompare(leftDate);
+  });
+
+  orderedGroups.forEach(([createdOn, group]) => {
     const groupNode = groupTemplate.content.firstElementChild.cloneNode(true);
     const title = groupNode.querySelector(".group-title");
     const meta = groupNode.querySelector(".group-meta");
@@ -107,7 +119,7 @@ function renderTasks() {
     const personalList = groupNode.querySelector('[data-category="personal"] .task-list');
     const workColumn = groupNode.querySelector('[data-category="work"]');
     const personalColumn = groupNode.querySelector('[data-category="personal"]');
-    const isToday = createdOn === formatDateKey(new Date());
+    const isToday = createdOn === todayKey;
 
     title.textContent = isToday ? "Created today" : `Started ${formatReadableDate(createdOn)}`;
     meta.textContent = `${group.length} ${group.length === 1 ? "task" : "tasks"}`;
