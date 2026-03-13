@@ -400,6 +400,53 @@ button:disabled {
   display: none;
 }
 
+.is-loading {
+  opacity: 0.78;
+}
+
+.skeleton-group,
+.skeleton-group .task-column {
+  pointer-events: none;
+}
+
+.skeleton-line,
+.skeleton-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.skeleton-line::after,
+.skeleton-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+  width: 10rem;
+  height: 1.2rem;
+  margin-bottom: 0.9rem;
+}
+
+.skeleton-label {
+  width: 4.5rem;
+  height: 0.8rem;
+}
+
+.skeleton-card {
+  height: 3.5rem;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

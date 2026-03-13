@@ -54,6 +54,7 @@
       <div class="section-heading">
         <h2>Open tasks</h2>
         <div class="section-actions">
+          <p id="sync-status" class="meta hidden">Refreshing...</p>
           <button id="toggle-done-button" type="button" class="link-button">Done tasks</button>
           <p id="task-count" class="meta"></p>
         </div>
@@ -93,6 +94,22 @@
                 <h4>Personal</h4>
               </div>
               <ul class="task-list"></ul>
+            </section>
+          </div>
+        </article>
+      </template>
+      <template id="skeleton-template">
+        <article class="task-group skeleton-group">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="task-columns">
+            <section class="task-column">
+              <div class="skeleton-line skeleton-label"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+            </section>
+            <section class="task-column">
+              <div class="skeleton-line skeleton-label"></div>
+              <div class="skeleton-card"></div>
             </section>
           </div>
         </article>

@@ -1,6 +1,7 @@
 const todayLabel = document.querySelector("#today-label");
 const taskCount = document.querySelector("#task-count");
 const taskGroups = document.querySelector("#task-groups");
+const syncStatus = document.querySelector("#sync-status");
 const doneSection = document.querySelector("#done-section");
 const doneList = document.querySelector("#done-list");
 const doneCount = document.querySelector("#done-count");
@@ -18,9 +19,11 @@ const composerSection = document.querySelector(".composer");
 const listSection = document.querySelector(".list");
 const groupTemplate = document.querySelector("#group-template");
 const sectionTemplate = document.querySelector("#section-template");
+const skeletonTemplate = document.querySelector("#skeleton-template");
 const taskTemplate = document.querySelector("#task-template");
 const supabaseUrl = window.APP_CONFIG?.supabaseUrl?.trim();
 const supabaseAnonKey = window.APP_CONFIG?.supabaseAnonKey?.trim();
+const TASK_CACHE_PREFIX = "daily-todo-organizer-cache";
 const supabaseClient = supabaseUrl && supabaseAnonKey
   ? window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -36,6 +39,7 @@ let tasks = [];
 let currentUser = null;
 let supportsCategoryColumn = true;
 let showingDoneTasks = false;
+let isRefreshing = false;
 
 renderToday();
 initializeApp();
@@ -90,6 +94,8 @@ function renderTasks() {
   doneCount.textContent = `${completedTasks.length} done ${completedTasks.length === 1 ? "task" : "tasks"}`;
   toggleDoneButton.textContent = showingDoneTasks ? "Hide done tasks" : "Done tasks";
   doneSection.classList.toggle("hidden", !showingDoneTasks);
+  taskGroups.classList.toggle("is-loading", isRefreshing);
+  syncStatus.classList.toggle("hidden", !isRefreshing);
 
   if (openTasks.length === 0) {
     const emptyState = document.createElement("p");
@@ -341,7 +347,16 @@ async function loadTasks() {
     return;
   }
 
-  taskCount.textContent = "Loading tasks...";
+  const cachedTasks = loadCachedTasks();
+  if (cachedTasks) {
+    tasks = cachedTasks;
+    renderTasks();
+  } else {
+    renderLoadingSkeletons();
+  }
+
+  isRefreshing = true;
+  renderTasks();
 
   let query = supabaseClient
     .from("tasks")
@@ -362,6 +377,7 @@ async function loadTasks() {
   }
 
   if (error) {
+    isRefreshing = false;
     tasks = [];
     taskGroups.innerHTML = "";
     renderError("Could not load tasks from Supabase.");
@@ -375,6 +391,8 @@ async function loadTasks() {
     createdOn: task.created_on,
     completedOn: task.completed_on
   }));
+  isRefreshing = false;
+  saveCachedTasks(tasks);
   renderTasks();
 }
 
@@ -425,6 +443,7 @@ async function createTask(text) {
     createdOn: data.created_on,
     completedOn: data.completed_on
   });
+  saveCachedTasks(tasks);
   renderTasks();
   taskForm.reset();
   taskInput.focus();
@@ -448,6 +467,7 @@ async function toggleTaskCompletion(taskId, shouldComplete) {
   }
 
   tasks = tasks.map((task) => task.id === taskId ? { ...task, completedOn } : task);
+  saveCachedTasks(tasks);
   renderTasks();
 }
 
@@ -468,6 +488,7 @@ async function deleteTask(taskId) {
   }
 
   tasks = tasks.filter((task) => task.id !== taskId);
+  saveCachedTasks(tasks);
   renderTasks();
 }
 
@@ -499,6 +520,7 @@ async function updateTaskCategory(taskId, category) {
   }
 
   tasks = tasks.map((task) => task.id === taskId ? { ...task, category } : task);
+  saveCachedTasks(tasks);
   renderTasks();
 }
 
@@ -527,6 +549,7 @@ function renderAuthCheckingState() {
   heroSignOutButton.classList.add("hidden");
   authSection.classList.remove("hidden");
   authForm.classList.add("hidden");
+  renderLoadingSkeletons();
 }
 
 function renderSignedOutState() {
@@ -600,4 +623,43 @@ function isMissingCategoryColumn(error) {
       error.message?.toLowerCase().includes("category")
     )
   );
+}
+
+function getTaskCacheKey() {
+  return currentUser ? `${TASK_CACHE_PREFIX}:${currentUser.id}` : null;
+}
+
+function loadCachedTasks() {
+  const cacheKey = getTaskCacheKey();
+  if (!cacheKey) {
+    return null;
+  }
+
+  const raw = localStorage.getItem(cacheKey);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedTasks(taskList) {
+  const cacheKey = getTaskCacheKey();
+  if (!cacheKey) {
+    return;
+  }
+
+  localStorage.setItem(cacheKey, JSON.stringify(taskList));
+}
+
+function renderLoadingSkeletons() {
+  taskGroups.innerHTML = "";
+  for (let index = 0; index < 2; index += 1) {
+    taskGroups.append(skeletonTemplate.content.firstElementChild.cloneNode(true));
+  }
 }
